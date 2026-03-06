@@ -1,0 +1,280 @@
+================================================================================
+CONSOLIDATED PROMPTS FOR EMA WINGS STUDIO REACT NATIVE APPLICATION
+================================================================================
+
+================================================================================
+PROMPT 1: INITIAL IMPLEMENTATION
+================================================================================
+
+Role: You are a senior React Native engineer.
+Goal: Implement a responsive UI screen set for Desktop, Tablet, and Mobile that matches the provided design images and aligns with the existing EMA v1 HTML/CSS intent and React Native starter code.
+
+Inputs (use them as authoritative references):
+
+Design images:
+- Desktop layout: Desktop.jpg
+- Tablet layout: Tablet.png
+- Mobile layout: Mobile.png
+
+Baseline UI content and structure:
+- EMA_HTML_v1.txt (use as source of text labels, sections, and IA)
+
+Baseline styling intent:
+- EMA_CSS_v1.txt (translate the key style concepts to React Native StyleSheet; keep typography, spacing, rounded corners, shadows, and color intent consistent)
+
+Baseline React Native starter:
+- EMA_React Native_v1.txt (use as starting point; refactor/clean up as needed)
+
+Requirements:
+
+1. Implement as React Native components (functional components).
+2. Must be responsive for:
+   - Mobile: width < 768
+   - Tablet: 768–1024
+   - Desktop: > 1024
+
+3. Use a single codebase with responsive breakpoints:
+   - Implement a useBreakpoint() hook OR use useWindowDimensions() and derive isMobile/isTablet/isDesktop.
+
+4. Layout must match images closely:
+   - Desktop: centered container with max width similar to 1200px and generous padding (like CSS shows: ~200px top and side padding on large screens).
+   - Tablet: reduced padding, stacked/condensed layout.
+   - Mobile: single column, minimal padding, touch-friendly spacing.
+
+5. Recreate key sections visible in EMA_HTML_v1:
+   - Header / navigation: "Home, Agent Flow, Tools, More, WINGS Studio, Setting, FAQ, User"
+   - Main headline: "What would you like to build?"
+   - Toggle/pills: "Agent" (selected) and "Workflow"
+   - Search/input bar: placeholder "Start building by describing what your agent needs to do"
+   - Cards/tiles: "Create workflow", "Create autonomous agent", "Computer-using agent"
+   - "Learning Resources" and "See all"
+   - Supporting feature bullets/tiles as per HTML text
+
+6. Styling translation from EMA_CSS_v1:
+   - Pill buttons: rounded (30px), shadow, selected background #355493, unselected text darker
+   - Container background #fafafa
+   - Card shadows subtle (rgba(0,0,0,0.05)), rounded corners
+   - Use font sizing similar to CSS: headline ~36, body ~14–20
+
+7. Do NOT rely on web-only CSS. Use React Native StyleSheet.
+8. Use ScrollView only where needed; avoid nested ScrollViews unless required.
+9. Icons/images: If an icon source is missing, stub with placeholder View or comment // TODO icon.
+
+Deliverables (output all):
+1. useBreakpoint.ts (or .js) hook
+2. EmaHomeScreen.tsx (main responsive screen)
+3. styles.ts (StyleSheet split by sections + responsive overrides)
+4. Brief explanation of how breakpoints map to Desktop/Tablet/Mobile and where to adjust spacing.
+
+Code quality constraints:
+- Clean component structure: Header, HeroSection, ModeToggle, PromptBar, ActionCards, LearningResources, Footer.
+- Avoid hardcoding duplicated layout—use shared components and responsive style overrides.
+- Ensure accessibility basics (touch target sizes, readable contrast).
+
+Now generate the complete implementation.
+
+
+================================================================================
+PROMPT 2: PIXEL-MATCH GUIDANCE
+================================================================================
+
+Pixel-match guidance:
+
+- Use a maxWidth container on Desktop (e.g., 1200) and center it.
+- Use spacing scale: desktopPadding=200, tabletPadding=48, mobilePadding=16 (tune to match images).
+- Use consistent vertical gaps (~30) like CSS .frame-parent { gap: 30px; }.
+- Ensure pills have borderRadius: 30, paddingVertical: 8, paddingHorizontal: 16, and subtle shadow.
+
+
+================================================================================
+PROMPT 3: RUN AND VALIDATE
+================================================================================
+
+Run and validate the application in web.
+
+
+================================================================================
+PROMPT 4: TEST IN REAL BROWSER
+================================================================================
+
+Test it in real browser Chrome.
+
+
+================================================================================
+PROMPT 5: DESKTOP UI PIXEL-PERFECT FIXES
+================================================================================
+
+Role: You are Factory AI Droid acting as a senior React Native + React Native Web engineer.
+Goal: Make the current Desktop web UI match the design in Desktop.jpg as closely as possible (pixel-close), using styling intent from EMA_CSS_v1.txt and structure/baseline from EMA_React Native_v1.txt.
+
+Inputs (authoritative):
+- Design reference: Desktop.jpg
+- Style intent: EMA_CSS_v1.txt (use values like background #fafafa, pill borderRadius ~30, shadows, padding, gaps)
+- Current baseline code: EMA_React Native_v1.txt (refactor/clean allowed)
+
+What to fix (defects list — fix all):
+
+Header:
+1. Add left brand text "wipro:" before "WINGS Studio" (match size, weight, spacing).
+2. Adjust top-right "Setting FAQ User" alignment and spacing to match Desktop.jpg baseline.
+3. Match header height/padding to Desktop.jpg.
+
+Left navigation:
+4. Render correct nav icons next to labels (Home, Agent, Flow, Tools, More) — no placeholders/squares.
+5. Fix selected "Home" styling: rounded container, correct padding and icon+text alignment.
+6. Match nav item vertical spacing and overall rail width.
+
+Hero + Toggle:
+7. Agent/Workflow toggle must include icons in both pills.
+8. Match pill style to Desktop.jpg and EMA_CSS_v1: rounded(30), subtle shadow, selected bg #355493, selected text white, unselected text dark.
+9. Fix spacing between title and toggle.
+
+Prompt/Search box:
+10. Replace placeholder "type" with exact text: "Start building by describing what your agent needs to do"
+11. Add left gear/settings icon inside the input area (as in Desktop.jpg).
+12. Add right mic icon and right-most circular send button with arrow icon (match shape, size, position).
+13. Fix input container height, border radius, shadow, and inner padding to match Desktop.jpg.
+
+Cards:
+14. Replace grey placeholders with proper top images for each card (use assets or create image placeholders that visually match Desktop.jpg proportions).
+15. Match card layout: image area height, padding, border radius, shadow, and equal card heights.
+16. Fix typography: title weight/size and description color/size to match Desktop.jpg.
+
+Learning Resources:
+17. Render the Learning Resources tiles/grid as in Desktop.jpg (multiple tiles, correct layout).
+18. Align "See all" on the same row as "Learning Resources" heading (right aligned).
+
+Overall:
+19. Set page background to #fafafa and ensure desktop container is centered with desktop padding consistent with EMA_CSS_v1 desktop container intent (approx 1200 max width, generous padding).
+20. Ensure consistent spacing scale (gap ~30 where applicable, as in EMA_CSS_v1 frame-parent).
+
+Implementation constraints:
+- React Native + Web compatible components only.
+- Use StyleSheet; no web-only CSS.
+- Avoid nested ScrollViews unless needed.
+- Use useWindowDimensions() and desktop layout rules for Desktop mode.
+
+Deliverables:
+1. Updated components (Header, SideNav, Toggle, PromptBar, Cards, LearningResources)
+2. Updated styles with clear sections
+3. Brief note of what changed and where values come from Desktop.jpg / EMA_CSS_v1.txt
+
+Acceptance criteria:
+- Desktop view visually matches Desktop.jpg (alignment, spacing, icons, shadows, and content).
+- No placeholder squares; icons render correctly.
+- Cards show images; Learning Resources grid is visible and aligned.
+- Background is #fafafa and layout is centered.
+
+Now implement all fixes and output the updated code.
+
+
+================================================================================
+PROMPT 6: COMPREHENSIVE RESPONSIVENESS ANALYSIS AND FIXES
+================================================================================
+
+Role: You are Factory AI Droid acting as a Senior React Native + React Native Web (Expo) engineer.
+
+Goal:
+Compare the requirement images (Desktop.jpg, Tablet.png, Mobile.png) against the actual output screenshots stored under:
+C:\trainings\factoryAI\Figma\05032026\screenshots
+Identify ALL responsiveness-related UI defects (layout, spacing, alignment, overflow, missing/hidden components, incorrect breakpoint behaviors), and fix them ALL without impacting current behavior and without changing the intended front-end design.
+
+Authoritative references:
+1) Requirement images:
+   - Desktop.jpg
+   - Tablet.png
+   - Mobile.png
+
+2) Styling intent baseline:
+   - EMA_CSS_v1.txt (use background #fafafa, spacing gaps ~30, pill radius ~30, shadows, typography intent)
+
+3) Baseline component structure:
+   - EMA_React Native_v1.txt (use as code baseline; refactor allowed but keep behavior and visual design intent)
+
+Constraints (must follow strictly):
+- Do NOT change the UX flow or behavior:
+  - No navigation/logic changes, no handler changes, no functional regressions.
+  - Only adjust responsiveness, layout, and styling to match the requirement images per breakpoint.
+- Do NOT "redesign" the UI:
+  - Keep the same design system (colors, typography, card style, pill style) as requirement images + EMA_CSS_v1 intent.
+- Fixes must be responsive:
+  - Use a single codebase (no duplicated screens) with breakpoints via useWindowDimensions() or a useBreakpoint() hook.
+- React Native + Web compatible:
+  - Use StyleSheet and RN primitives; avoid web-only CSS.
+- Preserve existing component names/exports where possible to avoid integration breakage.
+
+Step 1 — Collect & pair screenshots:
+- In the folder C:\trainings\factoryAI\Figma\05032026\screenshots, locate the output screenshots for:
+  - Desktop output (e.g., contains "desktop" or width > 1024)
+  - Tablet output (768–1024)
+  - Mobile output (< 768)
+- If filenames are ambiguous, infer by image resolution and/or closest match.
+- Create a mapping table: Requirement Image → Output Screenshot File.
+
+Step 2 — Perform visual comparison (automated + manual):
+- Implement a lightweight image diff check:
+  - Prefer Node + pixelmatch OR Python PIL diff
+  - Produce diff images into: C:\trainings\factoryAI\Figma\05032026\screenshots\diffs
+  - Report a diff score per viewport and highlight major mismatch regions.
+- Also manually inspect and classify issues into categories:
+  A) Header (branding, menu placement, spacing)
+  B) Left nav / bottom nav (visibility per breakpoint, selected state, icon rendering)
+  C) Title + Agent/Workflow toggle (icons, pill sizing, spacing)
+  D) Prompt/Search box (placeholder text, icons, sizing, alignment)
+  E) Cards (grid vs column, image visibility, card height equality, spacing)
+  F) Learning resources (grid/tiles layout, "See all" alignment)
+  G) Overall responsiveness (container maxWidth, padding, background color, overflow/cutoff)
+
+Step 3 — Document defects (must be exhaustive):
+For each viewport (Mobile/Tablet/Desktop), list every defect with:
+- ID, viewport
+- Expected (as per requirement image)
+- Actual (as per output screenshot)
+- Root cause hypothesis (styles/breakpoint/layout)
+- Specific fix action (what style/component change you will do)
+
+Step 4 — Implement fixes without impacting behavior:
+- Introduce/verify a breakpoint utility:
+  - isMobile (<768), isTablet (768–1024), isDesktop (>1024)
+- Fix layout using responsive style overrides:
+  - Desktop: centered container, maxWidth ~1200, generous padding, left nav visible
+  - Tablet: reduced padding, content centered, left nav visible (as per Tablet.png)
+  - Mobile: switch to bottom navigation (if required by Mobile.png), single-column layout, touch-friendly spacing
+- Ensure these exact design expectations match requirement images:
+  1) Background #fafafa and correct overall whitespace
+  2) Header brand "wipro:" + "WINGS Studio" (desktop/tablet), and mobile header icons as per Mobile.png
+  3) Agent/Workflow pill: radius ~30, selected bg #355493, includes icons, correct padding/shadow
+  4) Prompt input: correct placeholder text ("Start building by describing what your agent needs to do"),
+     gear icon on left, mic + circular send button on right, correct height/padding/shadow
+  5) Cards: Desktop/Tablet show 3-column (or as per requirement), Mobile shows stacked cards with images
+  6) Learning Resources: grid/tiles visible with correct alignment; "See all" right-aligned on the same row
+
+Step 5 — Regression safety:
+- After fixes, regenerate screenshots for all 3 viewports and re-run the diff.
+- Ensure:
+  - Diff reduced significantly
+  - No new layout regressions
+  - No interactive behavior changes (toggle still works, inputs usable, nav clickable)
+
+Deliverables (must output all):
+1) The defect report (grouped by Mobile/Tablet/Desktop)
+2) The paired screenshot mapping (requirement → output file)
+3) The code changes:
+   - useBreakpoint hook (if added)
+   - updated components and styles
+4) The diff images location + diff summary scores
+5) A short "what changed" summary with file names
+
+Now execute Step 1 → Step 5 and provide the final updated code and defect report.
+
+
+================================================================================
+PROMPT 7: CHROME BROWSER RESPONSIVENESS TEST
+================================================================================
+
+Run the test in my Chrome browser for the responsiveness for mobile, tablet, and desktop.
+
+
+================================================================================
+END OF CONSOLIDATED PROMPTS
+================================================================================
