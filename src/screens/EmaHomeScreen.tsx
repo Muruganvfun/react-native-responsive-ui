@@ -84,8 +84,7 @@ const getResponsiveStyles = (breakpoint: Breakpoint) => {
   const isDesktop = breakpoint === 'desktop';
 
   // Content width - wider per defect annotation (input field needs to be wider)
-  // Desktop.jpg shows input field spanning full width of the 3 cards
-  const contentWidth = isMobile ? '100%' : isTablet ? 700 : 1050;
+  const contentWidth = isMobile ? '100%' : isTablet ? 700 : 900;
 
   return {
     // Container
@@ -97,8 +96,8 @@ const getResponsiveStyles = (breakpoint: Breakpoint) => {
     showSidebar: !isMobile,
     sidebarWidth: 70,
     
-    // Sidebar icon size - smaller than text label per Desktop.jpg
-    sidebarIconSize: isMobile ? 16 : 18,
+    // Sidebar icon size - larger to match Desktop.jpg
+    sidebarIconSize: isMobile ? 22 : 24,
     
     // Hero
     headlineFontSize: isMobile ? 24 : isTablet ? 28 : 32,
@@ -524,7 +523,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#355493',
   },
   sidebarText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
     color: '#333',
     fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
