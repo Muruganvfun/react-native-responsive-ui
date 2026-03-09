@@ -8,6 +8,8 @@ import {
   StyleSheet,
   SafeAreaView,
   DimensionValue,
+  Platform,
+  Image,
 } from 'react-native';
 import useBreakpoint, { Breakpoint } from '../hooks/useBreakpoint';
 import { colors } from '../styles/styles';
@@ -22,7 +24,13 @@ import {
   SendIcon,
   AgentToggleIcon,
   WorkflowIcon,
+  WiproLogo,
 } from '../components/Icons';
+
+// Card images - matching requirements exactly
+const cardWorkflowImage = require('../../assets/images/card-workflow.png');
+const cardAutonomousImage = require('../../assets/images/card-autonomous.png');
+const cardComputerImage = require('../../assets/images/card-computer.png');
 
 // ============================================
 // DATA
@@ -41,16 +49,19 @@ const ACTION_CARDS = [
     id: 'workflow',
     title: 'Create workflow',
     description: 'Streamlined automation boosts productivity and ensures robust protection.',
+    image: cardWorkflowImage,
   },
   {
     id: 'autonomous',
     title: 'Create autonomous agent',
     description: 'Intelligent automation accelerates efficiency and upholds superior safety',
+    image: cardAutonomousImage,
   },
   {
     id: 'computer',
     title: 'Computer-using agent',
     description: 'Integrated automation optimizes workflows and guarantees first-rate security.',
+    image: cardComputerImage,
   },
 ];
 
@@ -72,28 +83,35 @@ const getResponsiveStyles = (breakpoint: Breakpoint) => {
   const isTablet = breakpoint === 'tablet';
   const isDesktop = breakpoint === 'desktop';
 
+  // Content width - wider per defect annotation (input field needs to be wider)
+  // Desktop.jpg shows input field spanning full width of the 3 cards
+  const contentWidth = isMobile ? '100%' : isTablet ? 700 : 1050;
+
   return {
     // Container
     containerPadding: isMobile ? 16 : isTablet ? 24 : 40,
-    contentMaxWidth: (isMobile ? '100%' : isTablet ? 650 : 800) as DimensionValue,
+    contentMaxWidth: contentWidth as DimensionValue,
     contentGap: isMobile ? 24 : 30,
     
     // Sidebar
     showSidebar: !isMobile,
     sidebarWidth: 70,
     
+    // Sidebar icon size - smaller than text label per Desktop.jpg
+    sidebarIconSize: isMobile ? 16 : 18,
+    
     // Hero
     headlineFontSize: isMobile ? 24 : isTablet ? 28 : 32,
     headlineLineHeight: isMobile ? 30 : isTablet ? 36 : 40,
     
-    // Prompt bar
-    promptBarMaxWidth: (isMobile ? '100%' : isTablet ? 500 : 550) as DimensionValue,
+    // Prompt bar - wider per defect annotation
+    promptBarMaxWidth: contentWidth as DimensionValue,
     promptBarHeight: isMobile ? 100 : isTablet ? 110 : 130,
     
     // Cards
     cardsPerRow: isMobile ? 1 : isTablet ? 2 : 3,
     cardWidth: (isMobile ? '100%' : isTablet ? '48%' : '31%') as DimensionValue,
-    cardImageHeight: isMobile ? 140 : isTablet ? 120 : 110,
+    cardImageHeight: isMobile ? 140 : isTablet ? 130 : 120,
     
     // Learning resources
     learningCardsPerRow: isMobile ? 1 : 2,
@@ -115,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ breakpoint }) => {
   return (
     <View style={styles.header}>
       <View style={styles.headerLogo}>
-        <Text style={styles.wiproText}>wipro</Text>
+        <WiproLogo width={60} height={24} />
         <View style={styles.logoDot} />
         <Text style={styles.logoText}>WINGS Studio</Text>
       </View>
@@ -141,6 +159,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ breakpoint }) => {
   if (breakpoint === 'mobile') return null;
+  const responsive = getResponsiveStyles(breakpoint);
 
   return (
     <View style={styles.sidebar}>
@@ -151,7 +170,7 @@ const Sidebar: React.FC<SidebarProps> = ({ breakpoint }) => {
             key={item.id}
             style={[styles.sidebarItem, item.active && styles.sidebarItemActive]}
           >
-            <IconComponent size={22} color={item.active ? '#fff' : '#333'} />
+            <IconComponent size={responsive.sidebarIconSize} color={item.active ? '#fff' : '#333'} />
             <Text style={[styles.sidebarText, item.active && styles.sidebarTextActive]}>
               {item.label}
             </Text>
@@ -213,14 +232,14 @@ const PromptBar: React.FC<PromptBarProps> = ({ breakpoint }) => {
       />
       <View style={styles.promptActions}>
         <TouchableOpacity style={styles.promptIconButton}>
-          <SettingsIcon size={22} color="#666" />
+          <SettingsIcon size={22} color="#757575" />
         </TouchableOpacity>
         <View style={styles.promptRightActions}>
           <TouchableOpacity style={styles.promptIconButton}>
-            <MicIcon size={22} color="#666" />
+            <MicIcon size={18} color="#757575" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.promptSendButton}>
-            <SendIcon size={16} color="#fff" />
+            <SendIcon size={30} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -248,62 +267,25 @@ const HeroSection: React.FC<HeroSectionProps> = ({ breakpoint, selectedMode, onM
   );
 };
 
-// Card image patterns
-const CardImagePattern: React.FC<{ type: string; height: number }> = ({ type, height }) => {
-  const getBackgroundColor = () => {
-    switch (type) {
-      case 'workflow': return '#e6f2fc';
-      case 'autonomous': return '#fef9e7';
-      case 'computer': return '#f0f5f8';
-      default: return '#f5f5f5';
-    }
-  };
-
-  return (
-    <View style={[styles.cardImage, { height, backgroundColor: getBackgroundColor() }]}>
-      {type === 'workflow' && (
-        <View style={styles.workflowPattern}>
-          <View style={[styles.patternLine, { backgroundColor: '#5B9BD5', transform: [{ rotate: '-25deg' }], left: '20%' }]} />
-          <View style={[styles.patternLine, { backgroundColor: '#E07B7B', transform: [{ rotate: '25deg' }], left: '40%' }]} />
-          <View style={[styles.patternLine, { backgroundColor: '#70C17C', transform: [{ rotate: '-35deg' }], left: '60%' }]} />
-          <View style={[styles.patternLine, { backgroundColor: '#9B7ED9', transform: [{ rotate: '15deg' }], left: '75%' }]} />
-        </View>
-      )}
-      {type === 'autonomous' && (
-        <View style={styles.autonomousPattern}>
-          {Array.from({ length: 36 }).map((_, i) => (
-            <View key={i} style={[styles.patternDot, { 
-              backgroundColor: ['#FFE066', '#70C17C', '#5B9BD5', '#FF9F43'][i % 4],
-              opacity: 0.7 + (Math.random() * 0.3),
-            }]} />
-          ))}
-        </View>
-      )}
-      {type === 'computer' && (
-        <View style={styles.computerPattern}>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <View key={i} style={[styles.patternWave, { opacity: 0.2 + (i * 0.08) }]} />
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
-
 interface ActionCardProps {
   id: string;
   title: string;
   description: string;
+  image: any;
   breakpoint: Breakpoint;
 }
 
-const ActionCard: React.FC<ActionCardProps> = ({ id, title, description, breakpoint }) => {
+const ActionCard: React.FC<ActionCardProps> = ({ id, title, description, image, breakpoint }) => {
   const responsive = getResponsiveStyles(breakpoint);
   const isMobile = breakpoint === 'mobile';
 
   return (
     <TouchableOpacity style={[styles.actionCard, { width: responsive.cardWidth }]}>
-      <CardImagePattern type={id} height={responsive.cardImageHeight} />
+      <Image
+        source={image}
+        style={[styles.cardImage, { height: responsive.cardImageHeight }]}
+        resizeMode="cover"
+      />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={[styles.cardDescription, isMobile && { fontSize: 13 }]}>{description}</Text>
@@ -327,6 +309,7 @@ const ActionCardsSection: React.FC<ActionCardsSectionProps> = ({ breakpoint }) =
             id={card.id}
             title={card.title}
             description={card.description}
+            image={card.image}
             breakpoint={breakpoint}
           />
         ))}
@@ -482,11 +465,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  wiproText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#000',
-  },
   logoDot: {
     width: 5,
     height: 5,
@@ -498,6 +476,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     color: '#000',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   headerNav: {
     flexDirection: 'row',
@@ -508,6 +487,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   headerMenuButton: {
     padding: 8,
@@ -517,19 +497,20 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 
-  // Sidebar
+  // Sidebar - grey extended to bottom per defect annotation
   sidebar: {
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: '#f1f1f1',
-    borderTopRightRadius: 16,
-    paddingVertical: 12,
+    bottom: 0,
+    backgroundColor: '#f5f5f5',
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 0,
+    paddingVertical: 16,
     paddingHorizontal: 8,
-    gap: 6,
+    gap: 8,
     zIndex: 10,
     width: 70,
-    minHeight: 350,
   },
   sidebarItem: {
     width: 54,
@@ -543,9 +524,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#355493',
   },
   sidebarText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '500',
     color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   sidebarTextActive: {
     color: '#fff',
@@ -561,6 +543,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000',
     textAlign: 'center',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
 
   // Mode toggle
@@ -591,6 +574,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#555',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   modeToggleTextSelected: {
     color: '#fff',
@@ -615,6 +599,7 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
     minHeight: 40,
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   promptActions: {
     flexDirection: 'row',
@@ -632,7 +617,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#355493',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -657,10 +641,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#000',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   seeAllText: {
     fontSize: 14,
     color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
 
   // Cards grid
@@ -686,7 +672,6 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     overflow: 'hidden',
-    position: 'relative',
   },
   cardContent: {
     padding: 12,
@@ -696,53 +681,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#000',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   cardDescription: {
     fontSize: 12,
     lineHeight: 16,
     color: '#888',
-  },
-
-  // Card patterns
-  workflowPattern: {
-    flex: 1,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  patternLine: {
-    position: 'absolute',
-    width: 4,
-    height: '120%',
-    top: '-10%',
-    borderRadius: 2,
-  },
-  autonomousPattern: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-    padding: 16,
-  },
-  patternDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-  },
-  computerPattern: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-    padding: 16,
-  },
-  patternWave: {
-    width: 8,
-    height: '70%',
-    backgroundColor: '#8BA4B8',
-    borderRadius: 4,
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
 
   // Learning resources
@@ -779,6 +724,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
 
   // Bottom navigation
@@ -807,6 +753,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '500',
     color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   bottomNavTextActive: {
     color: '#fff',
