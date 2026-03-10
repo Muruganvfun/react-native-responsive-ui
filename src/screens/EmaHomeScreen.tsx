@@ -10,6 +10,7 @@ import {
   DimensionValue,
   Platform,
   Image,
+  Modal,
 } from 'react-native';
 import useBreakpoint, { Breakpoint } from '../hooks/useBreakpoint';
 import { colors } from '../styles/styles';
@@ -37,11 +38,11 @@ const cardComputerImage = require('../../assets/images/card-computer.png');
 // ============================================
 
 const NAV_ITEMS = [
-  { id: 'home', label: 'Home', icon: HomeIcon, active: true },
-  { id: 'agent', label: 'Agent', icon: AgentIcon, active: false },
-  { id: 'flow', label: 'Flow', icon: FlowIcon, active: false },
-  { id: 'tools', label: 'Tools', icon: ToolsIcon, active: false },
-  { id: 'more', label: 'More', icon: MoreIcon, active: false },
+  { id: 'home', label: 'Home', icon: HomeIcon },
+  { id: 'agent', label: 'Agent', icon: AgentIcon },
+  { id: 'flow', label: 'Flow', icon: FlowIcon },
+  { id: 'tools', label: 'Tools', icon: ToolsIcon },
+  { id: 'more', label: 'More', icon: MoreIcon },
 ];
 
 const ACTION_CARDS = [
@@ -124,9 +125,10 @@ const getResponsiveStyles = (breakpoint: Breakpoint) => {
 
 interface HeaderProps {
   breakpoint: Breakpoint;
+  onMenuPress?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ breakpoint }) => {
+const Header: React.FC<HeaderProps> = ({ breakpoint, onMenuPress }) => {
   const isMobile = breakpoint === 'mobile';
 
   return (
@@ -138,7 +140,7 @@ const Header: React.FC<HeaderProps> = ({ breakpoint }) => {
       </View>
       
       {isMobile ? (
-        <TouchableOpacity style={styles.headerMenuButton}>
+        <TouchableOpacity style={styles.headerMenuButton} onPress={onMenuPress}>
           <Text style={styles.headerMenuIcon}>+</Text>
         </TouchableOpacity>
       ) : (
@@ -152,11 +154,116 @@ const Header: React.FC<HeaderProps> = ({ breakpoint }) => {
   );
 };
 
-interface SidebarProps {
+// Mobile Menu Popup Component
+interface MobileMenuPopupProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+const MobileMenuPopup: React.FC<MobileMenuPopupProps> = ({ visible, onClose }) => {
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+        <View style={styles.mobileMenuPopup}>
+          <TouchableOpacity style={styles.mobileMenuItem} onPress={onClose}>
+            <Text style={styles.mobileMenuText}>Setting</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.mobileMenuItem} onPress={onClose}>
+            <Text style={styles.mobileMenuText}>FAQ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.mobileMenuItem} onPress={onClose}>
+            <Text style={styles.mobileMenuText}>User</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
+
+// More Menu Popup Component (Persona based Agents)
+interface MoreMenuPopupProps {
+  visible: boolean;
+  onClose: () => void;
   breakpoint: Breakpoint;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ breakpoint }) => {
+const MoreMenuPopup: React.FC<MoreMenuPopupProps> = ({ visible, onClose, breakpoint }) => {
+  const isMobile = breakpoint === 'mobile';
+  
+  const personaAgents = [
+    { id: 'discover', label: 'Discover and Plan', color: '#F5A623' },
+    { id: 'learn', label: 'Learn', color: '#4A90D9' },
+    { id: 'observe', label: 'Observe', color: '#E91E63' },
+    { id: 'perform', label: 'Perform', color: '#FF5722' },
+  ];
+  
+  const quickActions = [
+    { id: 'think', label: 'Think Ahead', selected: false },
+    { id: 'books', label: 'Hit the Books', selected: true },
+    { id: 'check', label: 'Check it Out', selected: false },
+    { id: 'done', label: 'Get it Done', selected: true },
+  ];
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity 
+        style={isMobile ? styles.modalOverlayCenter : styles.modalOverlayLeft} 
+        activeOpacity={1} 
+        onPress={onClose}
+      >
+        <View style={[styles.moreMenuPopup, isMobile && styles.moreMenuPopupMobile]}>
+          <Text style={styles.moreMenuTitle}>Persona based Agents</Text>
+          <Text style={styles.moreMenuSubtitle}>Transition Manager</Text>
+          
+          <View style={styles.personaGrid}>
+            {personaAgents.map((agent) => (
+              <TouchableOpacity key={agent.id} style={styles.personaCard}>
+                <View style={[styles.personaIconCircle, { borderColor: agent.color }]}>
+                  <View style={[styles.personaIconInner, { backgroundColor: agent.color + '20' }]} />
+                </View>
+                <Text style={styles.personaLabel}>{agent.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <Text style={[styles.moreMenuTitle, { marginTop: 16 }]}>Persona based Agents</Text>
+          
+          <View style={styles.quickActionsGrid}>
+            {quickActions.map((action) => (
+              <TouchableOpacity 
+                key={action.id} 
+                style={[styles.quickActionBtn, action.selected && styles.quickActionBtnSelected]}
+              >
+                <Text style={[styles.quickActionText, action.selected && styles.quickActionTextSelected]}>
+                  {action.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
+
+interface SidebarProps {
+  breakpoint: Breakpoint;
+  activeNavItem: string;
+  onNavItemChange: (id: string) => void;
+  onMorePress: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ breakpoint, activeNavItem, onNavItemChange, onMorePress }) => {
   if (breakpoint === 'mobile') return null;
   const responsive = getResponsiveStyles(breakpoint);
 
@@ -164,13 +271,20 @@ const Sidebar: React.FC<SidebarProps> = ({ breakpoint }) => {
     <View style={styles.sidebar}>
       {NAV_ITEMS.map((item) => {
         const IconComponent = item.icon;
+        const isActive = item.id === activeNavItem;
         return (
           <TouchableOpacity
             key={item.id}
-            style={[styles.sidebarItem, item.active && styles.sidebarItemActive]}
+            style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
+            onPress={() => {
+              onNavItemChange(item.id);
+              if (item.id === 'more') {
+                onMorePress();
+              }
+            }}
           >
-            <IconComponent size={responsive.sidebarIconSize} color={item.active ? '#fff' : '#333'} />
-            <Text style={[styles.sidebarText, item.active && styles.sidebarTextActive]}>
+            <IconComponent size={responsive.sidebarIconSize} color={isActive ? '#fff' : '#333'} />
+            <Text style={[styles.sidebarText, isActive && styles.sidebarTextActive]}>
               {item.label}
             </Text>
           </TouchableOpacity>
@@ -357,22 +471,32 @@ const LearningResourcesSection: React.FC<LearningResourcesSectionProps> = ({ bre
 
 interface BottomNavigationProps {
   breakpoint: Breakpoint;
+  activeNavItem: string;
+  onNavItemChange: (id: string) => void;
+  onMorePress: () => void;
 }
 
-const BottomNavigation: React.FC<BottomNavigationProps> = ({ breakpoint }) => {
+const BottomNavigation: React.FC<BottomNavigationProps> = ({ breakpoint, activeNavItem, onNavItemChange, onMorePress }) => {
   if (breakpoint !== 'mobile') return null;
 
   return (
     <View style={styles.bottomNav}>
       {NAV_ITEMS.map((item) => {
         const IconComponent = item.icon;
+        const isActive = item.id === activeNavItem;
         return (
           <TouchableOpacity
             key={item.id}
-            style={[styles.bottomNavItem, item.active && styles.bottomNavItemActive]}
+            style={[styles.bottomNavItem, isActive && styles.bottomNavItemActive]}
+            onPress={() => {
+              onNavItemChange(item.id);
+              if (item.id === 'more') {
+                onMorePress();
+              }
+            }}
           >
-            <IconComponent size={22} color={item.active ? '#fff' : '#333'} />
-            <Text style={[styles.bottomNavText, item.active && styles.bottomNavTextActive]}>
+            <IconComponent size={22} color={isActive ? '#fff' : '#333'} />
+            <Text style={[styles.bottomNavText, isActive && styles.bottomNavTextActive]}>
               {item.label}
             </Text>
           </TouchableOpacity>
@@ -389,14 +513,25 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ breakpoint }) => {
 const EmaHomeScreen: React.FC = () => {
   const { breakpoint } = useBreakpoint();
   const [selectedMode, setSelectedMode] = useState<'agent' | 'workflow'>('agent');
+  const [activeNavItem, setActiveNavItem] = useState<string>('home');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const responsive = getResponsiveStyles(breakpoint);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header breakpoint={breakpoint} />
+      <Header 
+        breakpoint={breakpoint} 
+        onMenuPress={() => setShowMobileMenu(true)}
+      />
       
       <View style={styles.mainLayout}>
-        <Sidebar breakpoint={breakpoint} />
+        <Sidebar 
+          breakpoint={breakpoint} 
+          activeNavItem={activeNavItem}
+          onNavItemChange={setActiveNavItem}
+          onMorePress={() => setShowMoreMenu(true)}
+        />
         
         <ScrollView
           style={[styles.scrollView, responsive.showSidebar && { marginLeft: responsive.sidebarWidth }]}
@@ -418,7 +553,25 @@ const EmaHomeScreen: React.FC = () => {
         </ScrollView>
       </View>
 
-      <BottomNavigation breakpoint={breakpoint} />
+      <BottomNavigation 
+        breakpoint={breakpoint} 
+        activeNavItem={activeNavItem}
+        onNavItemChange={setActiveNavItem}
+        onMorePress={() => setShowMoreMenu(true)}
+      />
+
+      {/* Mobile Menu Popup */}
+      <MobileMenuPopup 
+        visible={showMobileMenu} 
+        onClose={() => setShowMobileMenu(false)} 
+      />
+
+      {/* More Menu Popup */}
+      <MoreMenuPopup 
+        visible={showMoreMenu} 
+        onClose={() => setShowMoreMenu(false)}
+        breakpoint={breakpoint}
+      />
     </SafeAreaView>
   );
 };
@@ -459,6 +612,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#fafafa',
     borderBottomWidth: 0,
+    zIndex: 20,
   },
   headerLogo: {
     flexDirection: 'row',
@@ -490,10 +644,18 @@ const styles = StyleSheet.create({
   },
   headerMenuButton: {
     padding: 8,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 18,
   },
   headerMenuIcon: {
     fontSize: 24,
+    fontWeight: '300',
     color: '#333',
+    lineHeight: 24,
   },
 
   // Sidebar - grey extended to bottom per defect annotation
@@ -755,6 +917,145 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
   },
   bottomNavTextActive: {
+    color: '#fff',
+  },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+  },
+  modalOverlayCenter: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalOverlayLeft: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
+
+  // Mobile Menu Popup
+  mobileMenuPopup: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 8,
+    marginTop: 60,
+    marginRight: 16,
+    minWidth: 150,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  mobileMenuItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  mobileMenuText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
+  },
+
+  // More Menu Popup - Desktop (left side near sidebar)
+  moreMenuPopup: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 60,
+    marginLeft: 80,
+    width: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  // More Menu Popup - Mobile (center of screen)
+  moreMenuPopupMobile: {
+    marginLeft: 0,
+    marginTop: 0,
+    width: '85%',
+    maxWidth: 340,
+  },
+  moreMenuTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 4,
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
+  },
+  moreMenuSubtitle: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 16,
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
+  },
+  personaGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  personaCard: {
+    width: '45%',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#fafafa',
+    borderRadius: 12,
+  },
+  personaIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  personaIconInner: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+  },
+  personaLabel: {
+    fontSize: 12,
+    color: '#333',
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
+  quickActionBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  quickActionBtnSelected: {
+    backgroundColor: '#355493',
+    borderColor: '#355493',
+  },
+  quickActionText: {
+    fontSize: 12,
+    color: '#333',
+    fontFamily: Platform.OS === 'web' ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : undefined,
+  },
+  quickActionTextSelected: {
     color: '#fff',
   },
 });
