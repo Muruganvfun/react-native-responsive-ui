@@ -1,279 +1,490 @@
 ================================================================================
 CONSOLIDATED PROMPTS FOR EMA WINGS STUDIO REACT NATIVE APPLICATION
 ================================================================================
+This document contains all prompts used to develop this application from scratch.
+Use these prompts sequentially to recreate the application on another system.
+================================================================================
 
 ================================================================================
-PROMPT 1: INITIAL IMPLEMENTATION
+PHASE 1: PROJECT SETUP
 ================================================================================
+
+PROMPT 1.1: Initialize Expo Project
+--------------------------------------------------------------------------------
+Create a new Expo React Native project with web support:
+
+```bash
+npx create-expo-app@latest ema-wings-studio --template blank-typescript
+cd ema-wings-studio
+npx expo install react-native-web react-dom @expo/metro-runtime
+```
+
+Create the following folder structure:
+- src/
+  - components/
+  - screens/
+  - hooks/
+  - styles/
+- assets/
+  - images/
+  - icons/
+
+================================================================================
+PHASE 2: INITIAL IMPLEMENTATION
+================================================================================
+
+PROMPT 2.1: Create Responsive Hook
+--------------------------------------------------------------------------------
+Create a useBreakpoint hook in src/hooks/useBreakpoint.ts:
 
 Role: You are a senior React Native engineer.
-Goal: Implement a responsive UI screen set for Desktop, Tablet, and Mobile that matches the provided design images and aligns with the existing EMA v1 HTML/CSS intent and React Native starter code.
-
-Inputs (use them as authoritative references):
-
-Design images:
-- Desktop layout: Desktop.jpg
-- Tablet layout: Tablet.png
-- Mobile layout: Mobile.png
-
-Baseline UI content and structure:
-- EMA_HTML_v1.txt (use as source of text labels, sections, and IA)
-
-Baseline styling intent:
-- EMA_CSS_v1.txt (translate the key style concepts to React Native StyleSheet; keep typography, spacing, rounded corners, shadows, and color intent consistent)
-
-Baseline React Native starter:
-- EMA_React Native_v1.txt (use as starting point; refactor/clean up as needed)
+Goal: Create a responsive breakpoint hook that detects screen size.
 
 Requirements:
+- Use useWindowDimensions from React Native
+- Define breakpoints:
+  - Mobile: width < 768
+  - Tablet: 768 <= width <= 1024
+  - Desktop: width > 1024
+- Export breakpoint type and hook
 
-1. Implement as React Native components (functional components).
-2. Must be responsive for:
-   - Mobile: width < 768
-   - Tablet: 768–1024
-   - Desktop: > 1024
+--------------------------------------------------------------------------------
 
-3. Use a single codebase with responsive breakpoints:
-   - Implement a useBreakpoint() hook OR use useWindowDimensions() and derive isMobile/isTablet/isDesktop.
+PROMPT 2.2: Create Base Styles
+--------------------------------------------------------------------------------
+Create src/styles/styles.ts with color constants and shared styles:
 
-4. Layout must match images closely:
-   - Desktop: centered container with max width similar to 1200px and generous padding (like CSS shows: ~200px top and side padding on large screens).
-   - Tablet: reduced padding, stacked/condensed layout.
-   - Mobile: single column, minimal padding, touch-friendly spacing.
+Define:
+- colors object with: primary (#355493), background (#fafafa), text (#333), etc.
+- typography styles for headings, body text
+- shadow styles for cards and buttons
 
-5. Recreate key sections visible in EMA_HTML_v1:
-   - Header / navigation: "Home, Agent Flow, Tools, More, WINGS Studio, Setting, FAQ, User"
-   - Main headline: "What would you like to build?"
-   - Toggle/pills: "Agent" (selected) and "Workflow"
-   - Search/input bar: placeholder "Start building by describing what your agent needs to do"
-   - Cards/tiles: "Create workflow", "Create autonomous agent", "Computer-using agent"
-   - "Learning Resources" and "See all"
-   - Supporting feature bullets/tiles as per HTML text
+--------------------------------------------------------------------------------
 
-6. Styling translation from EMA_CSS_v1:
-   - Pill buttons: rounded (30px), shadow, selected background #355493, unselected text darker
-   - Container background #fafafa
-   - Card shadows subtle (rgba(0,0,0,0.05)), rounded corners
-   - Use font sizing similar to CSS: headline ~36, body ~14–20
+PROMPT 2.3: Create Icons Component
+--------------------------------------------------------------------------------
+Create src/components/Icons.tsx with all SVG icons:
 
-7. Do NOT rely on web-only CSS. Use React Native StyleSheet.
-8. Use ScrollView only where needed; avoid nested ScrollViews unless required.
-9. Icons/images: If an icon source is missing, stub with placeholder View or comment // TODO icon.
+Requirements:
+- Use web-compatible approach with div elements and dangerouslySetInnerHTML
+- Create these icon components:
+  - HomeIcon (house with door)
+  - AgentIcon (DNA double helix)
+  - FlowIcon (two rectangles connected)
+  - ToolsIcon (briefcase/calendar)
+  - MoreIcon (square with 3 dots)
+  - WiproLogo (Wipro brand mark)
+  - SendIcon (arrow in circle)
+  - MicIcon (microphone)
+  - SettingsIcon (gear)
+  - WorkflowIcon (flow diagram)
+  - AgentToggleIcon (DNA helix small)
 
-Deliverables (output all):
-1. useBreakpoint.ts (or .js) hook
-2. EmaHomeScreen.tsx (main responsive screen)
-3. styles.ts (StyleSheet split by sections + responsive overrides)
-4. Brief explanation of how breakpoints map to Desktop/Tablet/Mobile and where to adjust spacing.
+Each icon should accept size and color props.
+Use SVG content from the Wings2.0_icon folder in requirements.
 
-Code quality constraints:
-- Clean component structure: Header, HeroSection, ModeToggle, PromptBar, ActionCards, LearningResources, Footer.
-- Avoid hardcoding duplicated layout—use shared components and responsive style overrides.
-- Ensure accessibility basics (touch target sizes, readable contrast).
+--------------------------------------------------------------------------------
 
-Now generate the complete implementation.
+PROMPT 2.4: Create Main Screen Component
+--------------------------------------------------------------------------------
+Create src/screens/EmaHomeScreen.tsx:
 
+Role: You are a senior React Native engineer.
+Goal: Implement a responsive UI screen for Desktop, Tablet, and Mobile.
 
-================================================================================
-PROMPT 2: PIXEL-MATCH GUIDANCE
-================================================================================
+Requirements:
+1. Implement as React Native functional components
+2. Must be responsive for Mobile (<768), Tablet (768-1024), Desktop (>1024)
+3. Use single codebase with responsive breakpoints
 
-Pixel-match guidance:
+Layout structure:
+- Header: Wipro logo, "WINGS Studio" text, Setting/FAQ/User (desktop) or + button (mobile)
+- Sidebar (desktop/tablet): Home, Agent, Flow, Tools, More navigation items
+- Main content:
+  - "What would you like to build?" headline
+  - Agent/Workflow toggle pills
+  - Search input with placeholder "Start building by describing what your agent needs to do"
+  - Three action cards: Create workflow, Create autonomous agent, Computer-using agent
+  - Learning Resources section with "See all" link
+- Bottom Navigation (mobile only): Home, Agent, Flow, Tools, More
 
-- Use a maxWidth container on Desktop (e.g., 1200) and center it.
-- Use spacing scale: desktopPadding=200, tabletPadding=48, mobilePadding=16 (tune to match images).
-- Use consistent vertical gaps (~30) like CSS .frame-parent { gap: 30px; }.
-- Ensure pills have borderRadius: 30, paddingVertical: 8, paddingHorizontal: 16, and subtle shadow.
-
-
-================================================================================
-PROMPT 3: RUN AND VALIDATE
-================================================================================
-
-Run and validate the application in web.
-
-
-================================================================================
-PROMPT 4: TEST IN REAL BROWSER
-================================================================================
-
-Test it in real browser Chrome.
-
-
-================================================================================
-PROMPT 5: DESKTOP UI PIXEL-PERFECT FIXES
-================================================================================
-
-Role: You are Factory AI Droid acting as a senior React Native + React Native Web engineer.
-Goal: Make the current Desktop web UI match the design in Desktop.jpg as closely as possible (pixel-close), using styling intent from EMA_CSS_v1.txt and structure/baseline from EMA_React Native_v1.txt.
-
-Inputs (authoritative):
-- Design reference: Desktop.jpg
-- Style intent: EMA_CSS_v1.txt (use values like background #fafafa, pill borderRadius ~30, shadows, padding, gaps)
-- Current baseline code: EMA_React Native_v1.txt (refactor/clean allowed)
-
-What to fix (defects list — fix all):
-
-Header:
-1. Add left brand text "wipro:" before "WINGS Studio" (match size, weight, spacing).
-2. Adjust top-right "Setting FAQ User" alignment and spacing to match Desktop.jpg baseline.
-3. Match header height/padding to Desktop.jpg.
-
-Left navigation:
-4. Render correct nav icons next to labels (Home, Agent, Flow, Tools, More) — no placeholders/squares.
-5. Fix selected "Home" styling: rounded container, correct padding and icon+text alignment.
-6. Match nav item vertical spacing and overall rail width.
-
-Hero + Toggle:
-7. Agent/Workflow toggle must include icons in both pills.
-8. Match pill style to Desktop.jpg and EMA_CSS_v1: rounded(30), subtle shadow, selected bg #355493, selected text white, unselected text dark.
-9. Fix spacing between title and toggle.
-
-Prompt/Search box:
-10. Replace placeholder "type" with exact text: "Start building by describing what your agent needs to do"
-11. Add left gear/settings icon inside the input area (as in Desktop.jpg).
-12. Add right mic icon and right-most circular send button with arrow icon (match shape, size, position).
-13. Fix input container height, border radius, shadow, and inner padding to match Desktop.jpg.
-
-Cards:
-14. Replace grey placeholders with proper top images for each card (use assets or create image placeholders that visually match Desktop.jpg proportions).
-15. Match card layout: image area height, padding, border radius, shadow, and equal card heights.
-16. Fix typography: title weight/size and description color/size to match Desktop.jpg.
-
-Learning Resources:
-17. Render the Learning Resources tiles/grid as in Desktop.jpg (multiple tiles, correct layout).
-18. Align "See all" on the same row as "Learning Resources" heading (right aligned).
-
-Overall:
-19. Set page background to #fafafa and ensure desktop container is centered with desktop padding consistent with EMA_CSS_v1 desktop container intent (approx 1200 max width, generous padding).
-20. Ensure consistent spacing scale (gap ~30 where applicable, as in EMA_CSS_v1 frame-parent).
-
-Implementation constraints:
-- React Native + Web compatible components only.
-- Use StyleSheet; no web-only CSS.
-- Avoid nested ScrollViews unless needed.
-- Use useWindowDimensions() and desktop layout rules for Desktop mode.
-
-Deliverables:
-1. Updated components (Header, SideNav, Toggle, PromptBar, Cards, LearningResources)
-2. Updated styles with clear sections
-3. Brief note of what changed and where values come from Desktop.jpg / EMA_CSS_v1.txt
-
-Acceptance criteria:
-- Desktop view visually matches Desktop.jpg (alignment, spacing, icons, shadows, and content).
-- No placeholder squares; icons render correctly.
-- Cards show images; Learning Resources grid is visible and aligned.
-- Background is #fafafa and layout is centered.
-
-Now implement all fixes and output the updated code.
-
+Styling requirements:
+- Background: #fafafa
+- Pill buttons: borderRadius 30, selected bg #355493, selected text white
+- Cards: subtle shadow, rounded corners
+- Font: Proxima Nova (with fallbacks)
 
 ================================================================================
-PROMPT 6: COMPREHENSIVE RESPONSIVENESS ANALYSIS AND FIXES
+PHASE 3: RESPONSIVE LAYOUT FIXES
 ================================================================================
 
-Role: You are Factory AI Droid acting as a Senior React Native + React Native Web (Expo) engineer.
+PROMPT 3.1: Desktop Layout Fixes
+--------------------------------------------------------------------------------
+Fix Desktop layout to match Desktop.jpg requirements:
 
-Goal:
-Compare the requirement images (Desktop.jpg, Tablet.png, Mobile.png) against the actual output screenshots stored under:
-C:\trainings\factoryAI\Figma\05032026\screenshots
-Identify ALL responsiveness-related UI defects (layout, spacing, alignment, overflow, missing/hidden components, incorrect breakpoint behaviors), and fix them ALL without impacting current behavior and without changing the intended front-end design.
+1. Header:
+   - Add "wipro:" brand text before "WINGS Studio"
+   - Align Setting/FAQ/User to top-right with proper spacing
+   - Match header height/padding
 
-Authoritative references:
-1) Requirement images:
-   - Desktop.jpg
-   - Tablet.png
-   - Mobile.png
+2. Left navigation (sidebar):
+   - Render correct icons next to labels
+   - Fix selected "Home" styling with rounded blue container
+   - Match nav item spacing and rail width
+   - Extend sidebar grey background to bottom of screen
 
-2) Styling intent baseline:
-   - EMA_CSS_v1.txt (use background #fafafa, spacing gaps ~30, pill radius ~30, shadows, typography intent)
+3. Hero + Toggle:
+   - Agent/Workflow toggle with icons in both pills
+   - Pill style: rounded(30), shadow, selected bg #355493
 
-3) Baseline component structure:
-   - EMA_React Native_v1.txt (use as code baseline; refactor allowed but keep behavior and visual design intent)
+4. Prompt/Search box:
+   - Exact placeholder text
+   - Gear icon on left
+   - Mic icon and circular send button on right
+   - Match height, border radius, shadow
 
-Constraints (must follow strictly):
-- Do NOT change the UX flow or behavior:
-  - No navigation/logic changes, no handler changes, no functional regressions.
-  - Only adjust responsiveness, layout, and styling to match the requirement images per breakpoint.
-- Do NOT "redesign" the UI:
-  - Keep the same design system (colors, typography, card style, pill style) as requirement images + EMA_CSS_v1 intent.
-- Fixes must be responsive:
-  - Use a single codebase (no duplicated screens) with breakpoints via useWindowDimensions() or a useBreakpoint() hook.
-- React Native + Web compatible:
-  - Use StyleSheet and RN primitives; avoid web-only CSS.
-- Preserve existing component names/exports where possible to avoid integration breakage.
+5. Cards:
+   - Three-column layout
+   - Use actual images from Wings2.0_img folder
+   - Match card height, padding, shadow
 
-Step 1 — Collect & pair screenshots:
-- In the folder C:\trainings\factoryAI\Figma\05032026\screenshots, locate the output screenshots for:
-  - Desktop output (e.g., contains "desktop" or width > 1024)
-  - Tablet output (768–1024)
-  - Mobile output (< 768)
-- If filenames are ambiguous, infer by image resolution and/or closest match.
-- Create a mapping table: Requirement Image → Output Screenshot File.
+6. Overall:
+   - Page background #fafafa
+   - Desktop container centered, maxWidth ~1050px
+   - Content width aligned with input field width
 
-Step 2 — Perform visual comparison (automated + manual):
-- Implement a lightweight image diff check:
-  - Prefer Node + pixelmatch OR Python PIL diff
-  - Produce diff images into: C:\trainings\factoryAI\Figma\05032026\screenshots\diffs
-  - Report a diff score per viewport and highlight major mismatch regions.
-- Also manually inspect and classify issues into categories:
-  A) Header (branding, menu placement, spacing)
-  B) Left nav / bottom nav (visibility per breakpoint, selected state, icon rendering)
-  C) Title + Agent/Workflow toggle (icons, pill sizing, spacing)
-  D) Prompt/Search box (placeholder text, icons, sizing, alignment)
-  E) Cards (grid vs column, image visibility, card height equality, spacing)
-  F) Learning resources (grid/tiles layout, "See all" alignment)
-  G) Overall responsiveness (container maxWidth, padding, background color, overflow/cutoff)
+--------------------------------------------------------------------------------
 
-Step 3 — Document defects (must be exhaustive):
-For each viewport (Mobile/Tablet/Desktop), list every defect with:
-- ID, viewport
-- Expected (as per requirement image)
-- Actual (as per output screenshot)
-- Root cause hypothesis (styles/breakpoint/layout)
-- Specific fix action (what style/component change you will do)
+PROMPT 3.2: Tablet Layout Fixes
+--------------------------------------------------------------------------------
+Fix Tablet layout to match Tablet.png requirements:
 
-Step 4 — Implement fixes without impacting behavior:
-- Introduce/verify a breakpoint utility:
-  - isMobile (<768), isTablet (768–1024), isDesktop (>1024)
-- Fix layout using responsive style overrides:
-  - Desktop: centered container, maxWidth ~1200, generous padding, left nav visible
-  - Tablet: reduced padding, content centered, left nav visible (as per Tablet.png)
-  - Mobile: switch to bottom navigation (if required by Mobile.png), single-column layout, touch-friendly spacing
-- Ensure these exact design expectations match requirement images:
-  1) Background #fafafa and correct overall whitespace
-  2) Header brand "wipro:" + "WINGS Studio" (desktop/tablet), and mobile header icons as per Mobile.png
-  3) Agent/Workflow pill: radius ~30, selected bg #355493, includes icons, correct padding/shadow
-  4) Prompt input: correct placeholder text ("Start building by describing what your agent needs to do"),
-     gear icon on left, mic + circular send button on right, correct height/padding/shadow
-  5) Cards: Desktop/Tablet show 3-column (or as per requirement), Mobile shows stacked cards with images
-  6) Learning Resources: grid/tiles visible with correct alignment; "See all" right-aligned on the same row
+1. Maintain sidebar but with reduced width
+2. Content area centered with reduced padding
+3. Cards in responsive grid (may stack to 2 columns)
+4. Extend grey background to screen edges
+5. Align content widths with input field
 
-Step 5 — Regression safety:
-- After fixes, regenerate screenshots for all 3 viewports and re-run the diff.
-- Ensure:
-  - Diff reduced significantly
-  - No new layout regressions
-  - No interactive behavior changes (toggle still works, inputs usable, nav clickable)
+--------------------------------------------------------------------------------
 
-Deliverables (must output all):
-1) The defect report (grouped by Mobile/Tablet/Desktop)
-2) The paired screenshot mapping (requirement → output file)
-3) The code changes:
-   - useBreakpoint hook (if added)
-   - updated components and styles
-4) The diff images location + diff summary scores
-5) A short "what changed" summary with file names
+PROMPT 3.3: Mobile Layout Fixes
+--------------------------------------------------------------------------------
+Fix Mobile layout to match Mobile.png requirements:
 
-Now execute Step 1 → Step 5 and provide the final updated code and defect report.
-
+1. Hide sidebar, show bottom navigation
+2. Header shows Wipro logo, "WINGS Studio", and + menu button
+3. Single column layout for cards
+4. Full-width input field
+5. Touch-friendly spacing
 
 ================================================================================
-PROMPT 7: CHROME BROWSER RESPONSIVENESS TEST
+PHASE 4: ICON AND IMAGE INTEGRATION
 ================================================================================
 
-Run the test in my Chrome browser for the responsiveness for mobile, tablet, and desktop.
+PROMPT 4.1: Integrate Sidebar Icons
+--------------------------------------------------------------------------------
+Replace sidebar icons with SVGs from Defects_09032026/Wings Icon folder:
 
+Icons to integrate:
+- Home.svg → HomeIcon
+- Agent.svg → AgentIcon  
+- Flow.svg → FlowIcon
+- Tools.svg → ToolsIcon
+- More.svg → MoreIcon
+
+All icons should be 24x24 viewBox for consistency.
+Update Icons.tsx with exact SVG content from these files.
+
+--------------------------------------------------------------------------------
+
+PROMPT 4.2: Integrate Card Images
+--------------------------------------------------------------------------------
+Convert and integrate card images from Wings2.0_img/source folder:
+
+1. Use sharp library to resize Adobe Stock images:
+   - AdobeStock_1850062993.jpg → card-workflow.png (500x240, quality 90)
+   - AdobeStock_1681783079.jpg → card-autonomous.png (500x240, quality 90)
+   - AdobeStock_362547713.jpg → card-computer.png (500x240, quality 90)
+
+2. Place converted images in assets/images/
+
+3. Update EmaHomeScreen.tsx to use require() for images
+
+================================================================================
+PHASE 5: INTERACTIVE FEATURES
+================================================================================
+
+PROMPT 5.1: Implement Selectable Navigation
+--------------------------------------------------------------------------------
+Add selectable navigation state to sidebar and bottom navigation:
+
+1. Remove hardcoded 'active' property from NAV_ITEMS
+2. Add activeNavItem state to main component
+3. Update Sidebar to accept activeNavItem and onNavItemChange props
+4. Update BottomNavigation to accept same props
+5. Blue selection box should only appear on currently selected item
+6. Clicking a nav item should update the selection state
+
+--------------------------------------------------------------------------------
+
+PROMPT 5.2: Implement Mobile Menu Popup
+--------------------------------------------------------------------------------
+Add popup menu for mobile + button:
+
+1. Import Modal from React Native
+2. Create MobileMenuPopup component with:
+   - Setting option
+   - FAQ option
+   - User option
+3. Add showMobileMenu state to main component
+4. Update Header to accept onMenuPress callback
+5. Popup appears top-right when + button is clicked
+6. Clicking outside or on an option closes the popup
+
+--------------------------------------------------------------------------------
+
+PROMPT 5.3: Implement More Menu Popup (Persona based Agents)
+--------------------------------------------------------------------------------
+Add popup for More button with Persona based Agents:
+
+1. Create MoreMenuPopup component with:
+   - Title: "Persona based Agents"
+   - Subtitle: "Transition Manager"
+   - 4 persona cards in 2x2 grid:
+     - Discover and Plan (orange border)
+     - Learn (blue border)
+     - Observe (pink border)
+     - Perform (red border)
+   - Quick action buttons:
+     - Think Ahead, Hit the Books, Check it Out, Get it Done
+   
+2. Positioning:
+   - Desktop: left-aligned near sidebar (modalOverlayLeft)
+   - Mobile: centered in screen (modalOverlayCenter)
+
+3. Add showMoreMenu state to main component
+4. Update Sidebar and BottomNavigation to accept onMorePress callback
+
+================================================================================
+PHASE 6: STYLING REFINEMENTS
+================================================================================
+
+PROMPT 6.1: Icon and Text Size Adjustments
+--------------------------------------------------------------------------------
+Adjust sidebar icon and text sizes to match requirements:
+
+- sidebarIconSize: 18px (icons should be smaller than text)
+- sidebarText: 11px font size
+- Ensure proper spacing between icon and label
+
+--------------------------------------------------------------------------------
+
+PROMPT 6.2: Input Field Width
+--------------------------------------------------------------------------------
+Adjust input field and content width:
+
+- Desktop contentWidth: 1050px (to match card row width)
+- Tablet contentWidth: 700px
+- Ensure prompt bar width matches content width
+
+--------------------------------------------------------------------------------
+
+PROMPT 6.3: Header Visibility Fix
+--------------------------------------------------------------------------------
+Fix header elements disappearing:
+
+- Add zIndex: 20 to header style
+- Improve + button styling with background circle
+- Ensure Setting/FAQ/User visible on desktop
+
+================================================================================
+PHASE 7: BUILD AND TESTING
+================================================================================
+
+PROMPT 7.1: Build Web Export
+--------------------------------------------------------------------------------
+Build the web version:
+
+```bash
+npx expo export --platform web --clear
+```
+
+This creates the dist/ folder with static web files.
+
+--------------------------------------------------------------------------------
+
+PROMPT 7.2: Create Local Server
+--------------------------------------------------------------------------------
+Create serve.js for local testing:
+
+```javascript
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+const PORT = 5000;
+const DIST_DIR = path.join(__dirname, 'dist');
+
+const mimeTypes = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+};
+
+const server = http.createServer((req, res) => {
+  let filePath = path.join(DIST_DIR, req.url === '/' ? 'index.html' : req.url);
+  const ext = path.extname(filePath);
+  const contentType = mimeTypes[ext] || 'application/octet-stream';
+  
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        fs.readFile(path.join(DIST_DIR, 'index.html'), (err, content) => {
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(content);
+        });
+      } else {
+        res.writeHead(500);
+        res.end('Server Error');
+      }
+    } else {
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content);
+    }
+  });
+});
+
+server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+```
+
+Run with: node serve.js
+
+--------------------------------------------------------------------------------
+
+PROMPT 7.3: Responsive Testing
+--------------------------------------------------------------------------------
+Test responsiveness in Chrome browser:
+
+1. Desktop viewport: 1440x900
+2. Tablet viewport: 800x1024
+3. Mobile viewport: 375x812
+
+Verify:
+- Sidebar visible on desktop/tablet, hidden on mobile
+- Bottom navigation visible on mobile only
+- Cards in grid on desktop, stacked on mobile
+- Popup positioning correct for each viewport
+
+================================================================================
+PHASE 8: GIT WORKFLOW
+================================================================================
+
+PROMPT 8.1: Initialize Git Repository
+--------------------------------------------------------------------------------
+```bash
+git init
+git add .
+git commit -m "Initial commit: Responsive React Native UI for EMA WINGS Studio"
+```
+
+--------------------------------------------------------------------------------
+
+PROMPT 8.2: Subsequent Commits
+--------------------------------------------------------------------------------
+After major changes:
+
+```bash
+git add <changed-files>
+git commit -m "Description of changes
+
+Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>"
+git push origin main
+```
+
+================================================================================
+REQUIREMENTS FOLDER STRUCTURE
+================================================================================
+
+requirements/
+├── Desktop.jpg          # Desktop design requirement
+├── Tablet.png           # Tablet design requirement
+├── Mobile.png           # Mobile design requirement
+├── Defects_06032026/
+│   ├── Frame 2147229243.png   # Defect annotations
+│   ├── Frame 2147229244.png   # Defect annotations
+│   ├── Wings2.0_icon.zip      # Icon SVG files
+│   └── Wings2.0_img.zip       # Image assets
+├── Defects_08032026/
+│   ├── Wings2.0_icon/         # Updated icon SVGs
+│   └── Wings2.0_img/source/   # Adobe Stock source images
+└── Defects_09032026/
+    └── Wings Icon/            # Final sidebar icons (24x24)
+        ├── Home.svg
+        ├── Agent.svg
+        ├── Flow.svg
+        ├── Tools.svg
+        └── More.svg
+
+================================================================================
+KEY FILES CREATED
+================================================================================
+
+src/
+├── hooks/
+│   └── useBreakpoint.ts       # Responsive breakpoint detection
+├── components/
+│   └── Icons.tsx              # All SVG icon components
+├── screens/
+│   └── EmaHomeScreen.tsx      # Main responsive screen
+└── styles/
+    └── styles.ts              # Color constants and shared styles
+
+assets/
+├── images/
+│   ├── card-workflow.png      # Workflow card image
+│   ├── card-autonomous.png    # Autonomous agent card image
+│   └── card-computer.png      # Computer agent card image
+└── icons/
+    └── (icon SVG files)
+
+serve.js                       # Local development server
+convert-images.js              # Image conversion script
+
+================================================================================
+SUMMARY OF FEATURES IMPLEMENTED
+================================================================================
+
+1. Responsive Layout
+   - Desktop: Sidebar navigation, 3-column card grid, full header
+   - Tablet: Sidebar navigation, responsive card grid
+   - Mobile: Bottom navigation, single column, hamburger menu
+
+2. Navigation
+   - Selectable sidebar items with blue highlight
+   - Bottom navigation for mobile with same selection state
+
+3. Popups
+   - Mobile + button: Shows Setting, FAQ, User menu
+   - More button: Shows "Persona based Agents" with 4 persona cards
+   - Desktop: Popup positioned left near sidebar
+   - Mobile: Popup centered in screen
+
+4. UI Components
+   - Header with Wipro logo and WINGS Studio branding
+   - Agent/Workflow toggle pills
+   - Search input with gear, mic, and send icons
+   - Action cards with images and descriptions
+   - Learning Resources section
+
+5. Styling
+   - Proxima Nova font family
+   - #fafafa background
+   - #355493 primary/selected color
+   - Consistent shadows and border radius
 
 ================================================================================
 END OF CONSOLIDATED PROMPTS
